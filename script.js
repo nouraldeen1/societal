@@ -788,21 +788,38 @@ function renderNationalComparison() {
     console.log("Global map rendered");
   }
   // Fix the data file paths for GitHub Pages compatibility
+
+// let datasets = {};
+// let map;
+// let charts = {};
+
+// Load all necessary data files with GitHub Pages path compatibility
 async function loadData() {
+  try {
+    console.log("Starting data loading...");
+    
+    // Get the repository base path for GitHub Pages compatibility
+    const basePath = window.location.hostname.includes('github.io') ? 
+      `/${window.location.pathname.split('/')[1]}` : '';
+    
+    console.log("Using base path:", basePath);
+    
+    // Use absolute paths from repo root with proper error handling
     try {
-      console.log("Starting data loading...");
+      const sharqiaResponse = await fetch(`${basePath}/data/sharqia_data.json`);
+      const egyptResponse = await fetch(`${basePath}/data/egypt_data.json`);
+      const worldResponse = await fetch(`${basePath}/data/world_data.json`);
+      const districtsGeoResponse = await fetch(`${basePath}/data/districts.geo.json`);
       
-      // Get the repository base path
-      const basePath = window.location.pathname.includes('github.io') ? 
-        window.location.pathname.split('/').slice(0, -1).join('/') : '';
+      if (!sharqiaResponse.ok) throw new Error(`Failed to load sharqia_data.json: ${sharqiaResponse.status}`);
+      if (!egyptResponse.ok) throw new Error(`Failed to load egypt_data.json: ${egyptResponse.status}`);
+      if (!worldResponse.ok) throw new Error(`Failed to load world_data.json: ${worldResponse.status}`);
+      if (!districtsGeoResponse.ok) throw new Error(`Failed to load districts.geo.json: ${districtsGeoResponse.status}`);
       
-      // Use absolute paths from repo root
-      const sharqiaData = await fetch(`${basePath}/data/sharqia_data.json`).then(res => res.json());
-      const egyptData = await fetch(`${basePath}/data/egypt_data.json`).then(res => res.json());
-      const worldData = await fetch(`${basePath}/data/world_data.json`).then(res => res.json());
-      const districtsGeo = await fetch(`${basePath}/data/districts.geo.json`).then(res => res.json());
-      
-      console.log("Data loaded successfully");
+      const sharqiaData = await sharqiaResponse.json();
+      const egyptData = await egyptResponse.json();
+      const worldData = await worldResponse.json();
+      const districtsGeo = await districtsGeoResponse.json();
       
       // Store data in the datasets object
       datasets = {
@@ -812,40 +829,179 @@ async function loadData() {
         districtsGeo: districtsGeo
       };
       
-      // Initialize map
-      initMap();
+      console.log("Data loaded successfully:", datasets);
+    } catch (fetchError) {
+      console.error("Fetch error:", fetchError);
+      // Try with relative paths as fallback
+      console.log("Trying with relative paths...");
       
-      // Initial render
-      handleComparisonChange();
+      const sharqiaData = await fetch('./data/sharqia_data.json').then(res => res.json());
+      const egyptData = await fetch('./data/egypt_data.json').then(res => res.json());
+      const worldData = await fetch('./data/world_data.json').then(res => res.json());
+      const districtsGeo = await fetch('./data/districts.geo.json').then(res => res.json());
       
-    } catch (error) {
-      console.error('Error loading data:', error);
-      document.getElementById("comparisonCards").innerHTML = 
-        `<p>Error loading data: ${error.message}. Please check console for details.</p>`;
+      datasets = {
+        sharqia: sharqiaData,
+        egypt: egyptData,
+        world: worldData,
+        districtsGeo: districtsGeo
+      };
+      
+      console.log("Data loaded successfully with relative paths");
     }
+    
+    // Initialize map
+    initMap();
+    
+    // Initial render
+    handleComparisonChange();
+    
+  } catch (error) {
+    console.error('Error loading data:', error);
+    document.getElementById("comparisonCards").innerHTML = 
+      `<p>Error loading data: ${error.message}. Please check console for details.</p>`;
   }
-  function initMap() {
-    console.log("Initializing map...");
-    try {
-      if (!map) {
-        const mapContainer = document.getElementById('map');
-        if (!mapContainer) {
-          console.error("Map container not found in the DOM");
-          return;
-        }
-        
-        console.log("Creating new map");
-        map = L.map('map').setView([30.55, 31.5], 9);
-        
+}
+
+// Initialize the map with better error handling and alternative providers
+function initMap() {
+  console.log("Initializing map...");
+  try {
+    // Create map if it doesn't exist
+    if (!map) {
+      // Check if map container exists
+      const mapContainer = document.getElementById('map');
+      if (!mapContainer) {
+        console.error("Map container not found in the DOM");
+        return;
+      }
+      
+      console.log("Creating new map");
+      map = L.map('map').setView([30.55, 31.5], 9);
+      
+      // Try to use primary map tile provider
+      try {
         // Ensure HTTPS for tile layers
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; OpenStreetMap contributors',
           maxZoom: 18
         }).addTo(map);
-        
-        console.log("Map created successfully");
+        console.log("Primary map tiles loaded");
+      } catch (tileError) {
+        // Fallback to alternative map provider if primary fails
+        console.warn("Primary map tiles failed, using alternative:", tileError);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(map);
+        console.log("Alternative map tiles loaded");
       }
-    } catch (error) {
-      console.error("Error initializing map:", error);
+      
+      console.log("Map created successfully");
+    } else {
+      console.log("Map already exists, reusing");
     }
+  } catch (error) {
+    console.error("Error initializing map:", error);
+    document.getElementById("map").innerHTML = 
+      `<div style="padding: 20px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px;">
+        <strong>Map Error:</strong> ${error.message}<br>Please check console for details.
+      </div>`;
   }
+}
+
+// Handler for map load/error events
+function setupMapEventListeners() {
+  if (!map) return;
+  
+  map.on('load', function() {
+    console.log("Map loaded successfully");
+  });
+  
+  map.on('error', function(e) {
+    console.error("Map error:", e.error);
+  });
+}
+
+// Handle comparison dropdown change
+function handleComparisonChange() {
+  const mode = document.getElementById("comparisonMode").value;
+  console.log("Comparison mode changed to:", mode);
+  
+  // Clear previous charts
+  if (charts.indicatorChart) {
+    console.log("Destroying previous indicator chart");
+    charts.indicatorChart.destroy();
+  }
+  
+  if (charts.trendChart) {
+    console.log("Destroying previous trend chart");
+    charts.trendChart.destroy();
+  }
+  
+  // Clear map layers except base layer
+  if (map) {
+    console.log("Clearing map layers");
+    map.eachLayer((layer) => {
+      if (layer instanceof L.TileLayer === false) {
+        map.removeLayer(layer);
+      }
+    });
+  }
+  
+  console.log("Rendering content for mode:", mode);
+  switch (mode) {
+    case "local":
+      renderDistrictComparison();
+      break;
+    case "national":
+      renderNationalComparison();
+      break;
+    case "global":
+      renderGlobalComparison();
+      break;
+  }
+}
+
+// Initialize the dashboard when the DOM is loaded with extensive logging
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOM loaded, initializing dashboard");
+  console.log("Current URL:", window.location.href);
+  console.log("Pathname:", window.location.pathname);
+  console.log("Hostname:", window.location.hostname);
+  
+  // Check for Leaflet and Chart.js
+  if (typeof L === 'undefined') {
+    console.error("Leaflet is not loaded! Map functionality will fail.");
+  } else {
+    console.log("Leaflet version:", L.version);
+  }
+  
+  if (typeof Chart === 'undefined') {
+    console.error("Chart.js is not loaded! Charts will fail.");
+  } else {
+    console.log("Chart.js version:", Chart.version);
+  }
+  
+  // Check if all required elements exist in the DOM
+  ['comparisonMode', 'comparisonCards', 'indicatorChart', 'trendChart', 'map'].forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      console.log(`Found element #${id} - dimensions: ${element.offsetWidth}x${element.offsetHeight}`);
+    } else {
+      console.error(`Missing element: #${id}`);
+    }
+  });
+  
+  // Setup dropdown change listener
+  const dropdown = document.getElementById("comparisonMode");
+  if (dropdown) {
+    dropdown.addEventListener('change', handleComparisonChange);
+  }
+  
+  // Load data and initialize dashboard
+  loadData();
+});
+
+// Ensure rest of the code functions are present here
