@@ -3,41 +3,44 @@
 <head>
   <title>Sharqia SDG 3 Dashboard</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Leaflet (for maps) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
 <body>
   <div class="dashboard">
-    <h1>Sharqia Governorate - SDG 3 Health Dashboard</h1>
+    <h1>Sharqia Governorate - SDG 3 Global Benchmarking</h1>
     
-    <!-- Metrics Overview -->
-    <div class="metrics">
-      <div class="card">
-        <h3>Diabetes Rate</h3>
-        <p id="diabetes-rate">18%</p>
-      </div>
-      <div class="card">
-        <h3>Air Pollution (PM2.5)</h3>
-        <p id="pollution-level">65 µg/m³</p>
-      </div>
-      <div class="card">
-        <h3>Maternal Mortality</h3>
-        <p id="maternal-mortality">55 per 100k</p>
-      </div>
+    <!-- Comparison Toggle -->
+    <div class="filters">
+      <select id="comparisonMode">
+        <option value="local">Sharqia Districts</option>
+        <option value="national">Sharqia vs. Egypt</option>
+        <option value="global">Egypt vs. World</option>
+      </select>
     </div>
 
-    <!-- Interactive Chart -->
-    <div class="chart-container">
-      <canvas id="healthChart"></canvas>
+    <!-- Key Metrics Comparison -->
+    <div class="comparison-cards" id="comparisonCards"></div>
+    
+    <!-- Charts Section -->
+    <div class="chart-row">
+      <div class="chart-container">
+        <canvas id="indicatorChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="trendChart"></canvas>
+      </div>
     </div>
-
-    <!-- Map Container -->
-    <div id="map"></div>
+    
+    <!-- Map and Table -->
+    <div class="map-table-row">
+      <div id="map"></div>
+      <div id="dataTable"></div>
+    </div>
   </div>
-
+  
   <script src="script.js"></script>
 </body>
 </html>

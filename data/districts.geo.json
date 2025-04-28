@@ -1,0 +1,71 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Zagazig",
+          "population": 628000
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[31.5, 30.6], [31.6, 30.6], [31.6, 30.5], [31.5, 30.5], [31.5, 30.6]]]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Belbeis",
+          "population": 420000
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[31.3, 30.4], [31.4, 30.4], [31.4, 30.3], [31.3, 30.3], [31.3, 30.4]]]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Abu Hammad",
+          "population": 350000
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[31.7, 30.5], [31.8, 30.5], [31.8, 30.4], [31.7, 30.4], [31.7, 30.5]]]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Fakous",
+          "population": 410000
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[31.9, 30.7], [32.0, 30.7], [32.0, 30.6], [31.9, 30.6], [31.9, 30.7]]]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Minia El-Kamh",
+          "population": 380000
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[31.4, 30.5], [31.5, 30.5], [31.5, 30.4], [31.4, 30.4], [31.4, 30.5]]]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Hihya",
+          "population": 290000
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[31.6, 30.7], [31.7, 30.7], [31.7, 30.6], [31.6, 30.6], [31.6, 30.7]]]
+        }
+      }
+    ]
+  }
