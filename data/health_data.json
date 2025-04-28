@@ -1,0 +1,6 @@
+{
+    "districts": ["Zagazig", "Belbeis", "Abu Hammad", "Al-Hussainya"],
+    "diabetesRates": [18, 22, 15, 20],
+    "pollutionLevels": [65, 80, 50, 70],
+    "maternalMortality": [55, 60, 50, 58]
+  }
