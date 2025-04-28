@@ -787,3 +787,65 @@ function renderNationalComparison() {
     
     console.log("Global map rendered");
   }
+  // Fix the data file paths for GitHub Pages compatibility
+async function loadData() {
+    try {
+      console.log("Starting data loading...");
+      
+      // Get the repository base path
+      const basePath = window.location.pathname.includes('github.io') ? 
+        window.location.pathname.split('/').slice(0, -1).join('/') : '';
+      
+      // Use absolute paths from repo root
+      const sharqiaData = await fetch(`${basePath}/data/sharqia_data.json`).then(res => res.json());
+      const egyptData = await fetch(`${basePath}/data/egypt_data.json`).then(res => res.json());
+      const worldData = await fetch(`${basePath}/data/world_data.json`).then(res => res.json());
+      const districtsGeo = await fetch(`${basePath}/data/districts.geo.json`).then(res => res.json());
+      
+      console.log("Data loaded successfully");
+      
+      // Store data in the datasets object
+      datasets = {
+        sharqia: sharqiaData,
+        egypt: egyptData,
+        world: worldData,
+        districtsGeo: districtsGeo
+      };
+      
+      // Initialize map
+      initMap();
+      
+      // Initial render
+      handleComparisonChange();
+      
+    } catch (error) {
+      console.error('Error loading data:', error);
+      document.getElementById("comparisonCards").innerHTML = 
+        `<p>Error loading data: ${error.message}. Please check console for details.</p>`;
+    }
+  }
+  function initMap() {
+    console.log("Initializing map...");
+    try {
+      if (!map) {
+        const mapContainer = document.getElementById('map');
+        if (!mapContainer) {
+          console.error("Map container not found in the DOM");
+          return;
+        }
+        
+        console.log("Creating new map");
+        map = L.map('map').setView([30.55, 31.5], 9);
+        
+        // Ensure HTTPS for tile layers
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors',
+          maxZoom: 18
+        }).addTo(map);
+        
+        console.log("Map created successfully");
+      }
+    } catch (error) {
+      console.error("Error initializing map:", error);
+    }
+  }
